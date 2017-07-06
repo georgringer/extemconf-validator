@@ -1,0 +1,24 @@
+{
+    "name": "georgringer/extemconf-validator",
+    "description": "Validate ext_emconf.php files of TYPO3 extensions",
+    "license": "GPL-3",
+    "keywords": [
+        "TYPO3"
+    ],
+    "homepage": "http://ringer.it",
+    "authors": [
+        {
+            "name": "Georg Ringer",
+            "email": "mail@ringer.it",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "beberlei/assert": "^2.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "GeorgRinger\\ExtemconfValidator\\": "src"
+        }
+    }
+}
