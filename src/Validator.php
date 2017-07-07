@@ -35,10 +35,13 @@ class Validator
 
     protected function validateRequiredFields()
     {
-        $requiredFields = ['title', 'description', 'version', 'state', 'author'];
+        $requiredFields = ['title', 'description', 'version', 'state', 'author', 'constraints'];
         foreach ($requiredFields as $field) {
             $this->assertion->that($this->data, $field)->keyExists($field);
         }
+
+        // title
+        $this->assertion->that($this->data['title'], 'title')->minLength(10);
 
         // description
         $this->assertion->that($this->data['description'], 'description')->minLength(50);
@@ -99,15 +102,15 @@ class Validator
     {
         $info = pathinfo($path);
 
-        $extensionKey = basename($info['dirname']);
+        $extensionKey = $_EXTKEY = basename($info['dirname']);
 
         $EM_CONF = null;
-        if (@file_exists($path)) {
+        if (file_exists($path)) {
             include $path;
             if (is_array($EM_CONF[$extensionKey])) {
                 return $EM_CONF[$extensionKey];
             }
         }
-        throw new RuntimeException('No valid ext_emconf.php file found for package "' . $packageKey . '".', 1499278202);
+        throw new RuntimeException('No valid ext_emconf.php file found for package "' . $path . '".', 1499278202);
     }
 }
