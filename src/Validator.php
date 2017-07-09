@@ -4,9 +4,7 @@
 namespace GeorgRinger\ExtemconfValidator;
 
 use Assert\Assert;
-use Assert\Assertion;
 use Assert\LazyAssertion;
-use function PHPSTORM_META\type;
 use RuntimeException;
 
 class Validator
@@ -31,7 +29,6 @@ class Validator
 
         $this->assertion->verifyNow();
     }
-
 
     protected function validateRequiredFields()
     {
@@ -80,7 +77,6 @@ class Validator
             $constraintVariant = $constraints[$constraintVariantName];
             $propertyPath = sprintf('%s -> %s', 'constraints', $constraintVariantName);
             $this->assertion->that($constraintVariant, $propertyPath)->isArray();
-
         }
     }
 
