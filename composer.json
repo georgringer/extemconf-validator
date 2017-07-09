@@ -20,5 +20,6 @@
         "psr-4": {
             "GeorgRinger\\ExtemconfValidator\\": "src"
         }
-    }
+    },
+    "bin": ["emconf-validate"],
 }
