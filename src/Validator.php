@@ -19,7 +19,6 @@ class Validator
     protected $booleanFields = ['uploadfolder', 'clearCacheOnLoad'];
     protected $deprecatedFields = ['dependencies', 'conflicts', 'suggests', 'docPath', 'CGLcompliance', 'CGLcompliance_note', 'private', 'download_password', 'shy', 'loadOrder', 'priority', 'internal', 'modify_tables', 'module', 'lockType', 'TYPO3_version', 'PHP_version'];
 
-
     public function __construct()
     {
         $this->assertion = Assert::lazy();
@@ -39,7 +38,6 @@ class Validator
 
     protected function validateRequiredFields()
     {
-
         foreach ($this->requiredFields as $field) {
             $this->assertion->that($this->data, $field)->keyExists($field);
         }
