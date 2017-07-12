@@ -29,7 +29,6 @@ class Application extends Command
         $path = $file = $input->getOption('file');
         $io = new SymfonyStyle($input, $output);
 
-
         // single file
         if (substr_compare($path, 'ext_emconf.php', -strlen('ext_emconf.php')) === 0) {
             $io->title($this->getDescription());
@@ -61,9 +60,7 @@ class Application extends Command
                 } catch (\Exception $e) {
                     $io->warning('ERROR:' . $e->getMessage());
                 }
-
             }
         }
-
     }
 }
