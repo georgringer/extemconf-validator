@@ -14,6 +14,12 @@ class Validator
     /** @var LazyAssertion */
     protected $assertion;
 
+    protected $requiredFields = ['title', 'description', 'category', 'version', 'state', 'author', 'constraints'];
+    protected $optionalFields = ['author_email', 'author_company', 'createDirs'];
+    protected $booleanFields = ['uploadfolder', 'clearCacheOnLoad'];
+    protected $deprecatedFields = ['dependencies', 'conflicts', 'suggests', 'docPath', 'CGLcompliance', 'CGLcompliance_note', 'private', 'download_password', 'shy', 'loadOrder', 'priority', 'internal', 'modify_tables', 'module', 'lockType', 'TYPO3_version', 'PHP_version'];
+
+
     public function __construct()
     {
         $this->assertion = Assert::lazy();
@@ -26,14 +32,15 @@ class Validator
         $this->validateRequiredFields();
         $this->validateConstraints();
         $this->validateDeprecatedConfiguration();
+        $this->validateNonExistingFields();
 
         $this->assertion->verifyNow();
     }
 
     protected function validateRequiredFields()
     {
-        $requiredFields = ['title', 'description', 'version', 'state', 'author', 'constraints'];
-        foreach ($requiredFields as $field) {
+
+        foreach ($this->requiredFields as $field) {
             $this->assertion->that($this->data, $field)->keyExists($field);
         }
 
@@ -41,7 +48,7 @@ class Validator
         $this->assertion->that($this->data['title'], 'title')->minLength(10);
 
         // description
-        $this->assertion->that($this->data['description'], 'description')->minLength(50);
+        $this->assertion->that($this->data['description'], 'description')->minLength(30);
 
         // categories
         $this->assertion->that($this->data['category'], 'category')->inArray(['be', 'module', 'fe', 'plugin', 'misc', 'services', 'templates', 'example', 'doc', 'distribution']);
@@ -52,12 +59,15 @@ class Validator
         // state
         $this->assertion->that($this->data['state'], 'state')->inArray(['alpha', 'beta', 'stable', 'experimental', 'test', 'obsolute', 'excludeFromUpdates']);
 
-        $booleanFields = ['uploadfolder', 'shy', 'clearCacheOnLoad'];
-        foreach ($booleanFields as $booleanField) {
+        foreach ($this->booleanFields as $booleanField) {
             if (isset($this->data[$booleanField])) {
                 $errorMessage = sprintf('Field "%s" is not boolean but "%s" (%s).', $booleanField, gettype($booleanField), $this->data[$booleanField]);
                 $this->assertion->that($this->data[$booleanField], $booleanField)->boolean($errorMessage);
             }
+        }
+
+        if (isset($this->data['clearcacheonload'])) {
+            $this->assertion->that($this->data, 'clearcacheonload')->keyNotExists('clearcacheonload', 'The property "clearcacheonload" must be named "clearCacheOnLoad".');
         }
     }
 
@@ -82,9 +92,25 @@ class Validator
 
     protected function validateDeprecatedConfiguration()
     {
-        $deprecatedConfigurationItems = ['dependencies', 'conflicts', 'suggests', 'docPath', 'CGLcompliance', 'CGLcompliance_note', 'private', 'download_password'];
-        foreach ($deprecatedConfigurationItems as $deprecatedConfigurationItem) {
-            $this->assertion->that($this->data, $deprecatedConfigurationItem)->keyNotExists($deprecatedConfigurationItem, '"%s" is deprecated!', 'Configuration');
+        foreach ($this->deprecatedFields as $field) {
+            $this->assertion->that($this->data, $field)->keyNotExists($field, '"%s" is deprecated!', 'Configuration');
+        }
+    }
+
+    protected function validateNonExistingFields()
+    {
+        $differences = array_diff(
+            array_keys($this->data),
+            $this->requiredFields,
+            $this->booleanFields,
+            $this->optionalFields,
+            $this->deprecatedFields,
+            ['clearcacheonload']
+        );
+        if (!empty($differences)) {
+            foreach ($differences as $fieldName) {
+                $this->assertion->that($this->data, $fieldName)->keyNotExists($fieldName, '"%s" is unknown in TYPO3 world, remove it', 'Configuration');
+            }
         }
     }
 

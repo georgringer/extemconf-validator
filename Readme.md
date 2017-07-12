@@ -2,15 +2,37 @@
 
 TYPO3 uses a file named `ext_emconf.php` for declarations of extensions. You can find detailed information about it at https://docs.typo3.org/typo3cms/CoreApiReference/ExtensionArchitecture/DeclarationFile/Index.html
 
+**Installation**
+
+```
+composer require georgringer/extemconf-validator:dev-master
+```
+
 ### Usage
+
+#### CLI
+
+Multiple usages are possible:
+
+```
+// Check all extensions in given directory
+./bin/emconf-validate emconf:validate --file=typo3conf/ext/
+
+// Check single file
+./bin/emconf-validate emconf:validate --file=typo3conf/ext/myextension/ext_emconf.php
+
+```
+
+### Direct call
+
+Use the following code to check a file
 
 ```
 $fileValidation = new \GeorgRinger\ExtemconfValidator\Validator();
 try {
     $fileValidation->validate($file);
-    $io->success('all ok');
 } catch (\Exception $e) {
-    $io->warning('ERROR:' . $e->getMessage());
+    echo $e->getMessage());
 }
 ```
 
@@ -80,11 +102,18 @@ The following keys are deprecated and must not be used anymore
 - CGLcompliance_note
 - private
 - download_password
+- shy
+- loadOrder
+- priority
+- internal
+- modify_tables
+- module
+- lockType
+- TYPO3_version
+- PHP_version
 
 ## Todos:
 
 - Check author_email, author_company
 - check author as arrays as proposed by extension_builder
 - validate constraints
-- check keys which are not defined
-- CLI
