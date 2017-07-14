@@ -29,6 +29,12 @@ class Application extends Command
         $path = $file = $input->getOption('file');
         $io = new SymfonyStyle($input, $output);
 
+        if (empty($path)) {
+            $io->warning('No file given!');
+            $io->warning('Using something like e.g.: emconf-validate emconf:validate --file=typo3conf/ext/');
+            return false;
+        }
+
 
         // single file
         if (substr_compare($path, 'ext_emconf.php', -strlen('ext_emconf.php')) === 0) {

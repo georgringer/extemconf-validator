@@ -15,7 +15,7 @@ class Validator
     protected $assertion;
 
     protected $requiredFields = ['title', 'description', 'category', 'version', 'state', 'author', 'constraints'];
-    protected $optionalFields = ['author_email', 'author_company', 'createDirs'];
+    protected $optionalFields = ['author_email', 'author_company', 'createDirs', 'autoload', 'autoload-dev'];
     protected $booleanFields = ['uploadfolder', 'clearCacheOnLoad'];
     protected $deprecatedFields = ['dependencies', 'conflicts', 'suggests', 'docPath', 'CGLcompliance', 'CGLcompliance_note', 'private', 'download_password', 'shy', 'loadOrder', 'priority', 'internal', 'modify_tables', 'module', 'lockType', 'TYPO3_version', 'PHP_version'];
 
@@ -32,6 +32,7 @@ class Validator
         $this->validateRequiredFields();
         $this->validateConstraints();
         $this->validateDeprecatedConfiguration();
+        $this->validateAutoloadConfiguration();
         $this->validateNonExistingFields();
 
         $this->assertion->verifyNow();
@@ -94,6 +95,41 @@ class Validator
     {
         foreach ($this->deprecatedFields as $field) {
             $this->assertion->that($this->data, $field)->keyNotExists($field, '"%s" is deprecated!', 'Configuration');
+        }
+    }
+
+    protected function validateAutoloadConfiguration()
+    {
+        $autoloadSections = ['autoload', 'autoload-dev'];
+        foreach ($autoloadSections as $autoloadSection) {
+            if (!isset($this->data[$autoloadSection])) {
+                continue;
+            }
+            $innerContent = $this->data[$autoloadSection];
+            $this->assertion->that($innerContent, $autoloadSection)->isArray();
+
+            // check classmap
+            if (isset($innerContent['classmap'])) {
+                $this->assertion->that($innerContent['classmap'], $autoloadSection . ': classmap')->isArray();
+            }
+
+            // check PSR-4
+            if (isset($innerContent['psr-4'])) {
+                $this->assertion->that($innerContent['psr-4'], $autoloadSection . ': psr-4')->isArray();
+                foreach ($innerContent['psr-4'] as $prefix => $value) {
+                    $this->assertion->that($prefix, 'PSR-4')->endsWith('\\', null, 'PSR-4 entry');
+                }
+            }
+
+            $differences = array_diff(
+                array_keys($innerContent),
+                ['classmap', 'psr-4']
+            );
+            if (!empty($differences)) {
+                foreach ($differences as $fieldName) {
+                    $this->assertion->that($innerContent, $fieldName)->keyNotExists($fieldName, '"%s" is unknown.', $autoloadSection);
+                }
+            }
         }
     }
 
