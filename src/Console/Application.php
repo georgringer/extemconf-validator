@@ -35,7 +35,6 @@ class Application extends Command
             return false;
         }
 
-
         // single file
         if (substr_compare($path, 'ext_emconf.php', -strlen('ext_emconf.php')) === 0) {
             $io->title($this->getDescription());
@@ -67,9 +66,7 @@ class Application extends Command
                 } catch (\Exception $e) {
                     $io->warning('ERROR:' . $e->getMessage());
                 }
-
             }
         }
-
     }
 }
